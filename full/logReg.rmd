@@ -1,1 +1,45 @@
+---
+title: "Bosch Log Reg"
+author: "Anandan Balaji"
+date: "9/7/2016"
+output: pdf_document
+---
+
+# Use train numeric and run logistic regression.
+
+```{r}
+# Bosch - build logistic regression
+
+library(data.table)
+
+system.time(train <- fread("../dataset/train_numeric.csv", header = TRUE))
+
+system.time(test <- fread("../dataset/test_numeric.csv", header = TRUE))
+
+
+# handle the NA values
+train[is.na(train)] <- 0.0
+
+# model
+library(stats)
+model <- glm(Response ~., family = binomial(link = "logit"), data = train)
+summary(model)
+
+
+#do the prediction
+
+# handle the test NA values
+test[is.na(test)] <- 0.0
+
+pred <- predict(model, newdata = test, type = "response")
+
+pred <- ifelse(pred > 0.5, 1, 0)
+pred_faults <- sum(pred, na.rm = TRUE)
+
+
+#create the submission file
+results <- test[, 1, with = FALSE]
+results$Response <- pred
+write.csv(results, file = "submission.csv", row.names = FALSE, quote = FALSE)
+```
 
