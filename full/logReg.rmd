@@ -14,9 +14,6 @@ library(data.table)
 
 system.time(train <- fread("../dataset/train_numeric.csv", header = TRUE))
 
-system.time(test <- fread("../dataset/test_numeric.csv", header = TRUE))
-
-
 # handle the NA values
 train[is.na(train)] <- 0.0
 
@@ -25,6 +22,12 @@ library(stats)
 model <- glm(Response ~., family = binomial(link = "logit"), data = train)
 summary(model)
 
+
+```
+
+```{r}
+
+system.time(test <- fread("../dataset/test_numeric.csv", header = TRUE, nrows = 50000))
 
 #do the prediction
 
@@ -36,6 +39,9 @@ pred <- predict(model, newdata = test, type = "response")
 pred <- ifelse(pred > 0.5, 1, 0)
 pred_faults <- sum(pred, na.rm = TRUE)
 
+```
+
+```{r}
 
 #create the submission file
 results <- test[, 1, with = FALSE]
